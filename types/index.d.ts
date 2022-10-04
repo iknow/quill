@@ -70,6 +70,48 @@ export interface QuillOptionsStatic {
     bounds?: HTMLElement | string;
     scrollingContainer?: HTMLElement | string;
     strict?: boolean;
+    /**
+     * Registry is a data structure provided by the Parchment library. Registry maps a node type to its
+     * corresponding style blot. It contains a register method to allow users to customize the blot map.
+     * Quill uses a registry to know how to translate between html contents and Delta operations. Delta
+     * is a library that Quill uses to represent the editor’s contents and changes. By default, Quill uses
+     * a global registry. In the versions below Quill 2.0, you're supposed to configure formats using the
+     * formats option. However, this API is changed in Quill 2.0+. Formats option does not fully prevent
+     * Quill from rendering pasted formatted contents that are not supported. In the 2.0+ version of Quill
+     * that we are using, there is an undocumented way to provide Quill with a custom registry. Doing so
+     * allows Quill to strip unsupported styles when contents are being pasted into an editor.
+     * 
+     * Please note, in addition to the needed styles' blots, the following core blots also need to be
+     * registered to ensure Quill works as expected: ScrollBlot, BlockBlot, CursorBlot, BreakBlot, ContainerBlot,
+     * InlineBlot, TextBlot.
+     * 
+     * Another caveat is using a Parchment versioned differently from what Quill is using may cause glitches.
+     * Make sure the version of Parchment is in sync with what Quill is using by importing directly from Quill.
+     * 
+     * ```tsx
+     * // Import Parchment from Quill to ensure the version of Parchment used to create the custom registry is
+     * // aligned with Quill
+     * const Parchment = Quill.import('parchment');
+     * 
+     * // Create a custom registry
+     * const registry = new Parchment.Registry();
+     * 
+     * // Register all of the necessary core blots
+     * registry.register(ScrollBlot);
+     * ...
+     * 
+     * // Register custom style blots
+     * registry.register(BoldBlot);
+     * 
+     * // Instantaiate Quill with a custom registry.
+     * const quill = new Quill(node, {
+     *  registry,
+     * });
+     * ```
+     * @see {@link https://github.com/iknow/quill/blob/develop/quill.js How format registration is handled in our Quill }
+     * @see {@link https://quilljs.com/docs/configuration/#formats Outdated formats API}
+     * @see {@link https://github.com/quilljs/quill/commit/eda1472fb0813455cec38af296a24057b254c29d#diff-70280fa841e1612135800e0902770a8a9f17ccf99f79807e0ce7c9ab42b0e579L84 Commit that made the change to switch to allow custom registry }
+     */
     registry?: Parchment.Registry;
 }
 
